@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>TokTags � TikTok Hashtag Generator (Demo)</title>
+<title>TokTags — TikTok Hashtag Generator (Demo)</title>
 <meta name="description" content="Generate hashtag TikTok cepat berdasarkan caption / keyword. No API, client-side saja."/>
 <style>
   :root{--bg:#071018;--card:#0f1620;--muted:#9aa6b2;--accent:#7c4dff;--accent2:#4f46e5}
@@ -38,7 +38,7 @@
       <div class="logo">TT</div>
       <div>
         <h1>TokTags</h1>
-        <p class="lead">Generate hashtag TikTok cepat dari caption / keyword. (Demo � client-side)</p>
+        <p class="lead">Generate hashtag TikTok cepat dari caption / keyword. (Demo — client-side)</p>
       </div>
     </header>
 
@@ -254,6 +254,126 @@
   // quick sample: fill with example
   captionEl.placeholder = 'Contoh: tutorial makeup natural, quick glow, 1 menit';
 })();
+<!-- Tag generator fallback: paste this before </body> -->
+<script>
+(function(){
+  // safety: tunggu DOM siap
+  function ready(fn){ if(document.readyState!='loading') fn(); else document.addEventListener('DOMContentLoaded',fn); }
+
+  ready(function(){
+    // cari elemen caption / niche / jumlah / generate / tags container
+    const captionEl = document.getElementById('caption') || document.querySelector('textarea') || document.querySelector('input[type="text"]');
+    const nicheEl = document.getElementById('niche') || document.querySelector('select');
+    const countEl = document.getElementById('count') || document.querySelector('[name="count"]') || null;
+    let genBtn = document.getElementById('gen') || Array.from(document.querySelectorAll('button')).find(b => /generate|generate tags|generate tag|gas|buat/i.test(b.innerText));
+    const tagsWrapExisting = document.getElementById('tags') || document.querySelector('.tags-wrap');
+
+    // jika belum ada area render, buat sendiri dan masukkan di bawah tombol (atau di akhir form)
+    function ensureTagsWrap(){
+      let wrap = tagsWrapExisting || document.getElementById('tags');
+      if(!wrap){
+        wrap = document.createElement('div');
+        wrap.id = 'tags';
+        wrap.style.marginTop = '12px';
+        const container = document.querySelector('.card') || document.querySelector('form') || document.body;
+        container.appendChild(wrap);
+      }
+      return wrap;
+    }
+
+    const wrap = ensureTagsWrap();
+
+    // simple generator
+    function generateFromText(text, niche, maxCount){
+      if(!text) return [];
+      // normalize
+      text = text.toLowerCase().replace(/[^\w\s-]/g,' ').replace(/\s+/g,' ').trim();
+      const words = text.split(' ').filter(Boolean);
+      // include some basic synonyms per niche
+      const nicheHints = {
+        beauty: ['makeup','beauty','skincare','tutorial'],
+        music: ['music','song','cover','lyrics'],
+        food: ['food','recipe','foodie','kuliner'],
+        gaming: ['gaming','gamer','mobilelegends','mlbb','gameplay'],
+        general: []
+      };
+      const hints = nicheHints[(niche||'general').toLowerCase()] || [];
+      // pick unique words, prefer first words + hints
+      const uniq = Array.from(new Set([...words, ...hints])).slice(0, maxCount||10);
+      // format as hashtags (no spaces)
+      return uniq.map(w => '#'+w.replace(/[^a-z0-9_]/g,'')).filter(Boolean);
+    }
+
+    function renderTags(list){
+      wrap.innerHTML = ''; // clear
+      if(list.length===0){
+        const p = document.createElement('div'); p.textContent = 'Tekan Generate untuk membuat hashtag.'; p.style.opacity=.8; wrap.appendChild(p); return;
+      }
+      const box = document.createElement('div');
+      box.style.display = 'flex';
+      box.style.flexWrap = 'wrap';
+      box.style.gap = '8px';
+      list.forEach(t=>{
+        const el = document.createElement('button');
+        el.type='button';
+        el.className='tagchip';
+        el.textContent = t;
+        el.style.padding = '8px 10px';
+        el.style.borderRadius = '20px';
+        el.style.border = 'none';
+        el.style.background = 'rgba(255,255,255,0.04)';
+        el.style.color = 'inherit';
+        el.style.cursor = 'pointer';
+        el.onclick = ()=>{ navigator.clipboard.writeText(t).then(()=>{ el.textContent = 'copied ✓'; setTimeout(()=>el.textContent=t,900); }); };
+        box.appendChild(el);
+      });
+      // copy all btn
+      const copyAll = document.createElement('button');
+      copyAll.type='button';
+      copyAll.textContent = 'Copy All';
+      copyAll.style.padding='8px 12px';
+      copyAll.style.borderRadius='8px';
+      copyAll.style.marginLeft='6px';
+      copyAll.onclick = ()=>{
+        const text = list.join(' ');
+        navigator.clipboard.writeText(text).then(()=>{ copyAll.textContent='Copied ✓'; setTimeout(()=>copyAll.textContent='Copy All',900); });
+      };
+      wrap.appendChild(box);
+      wrap.appendChild(copyAll);
+    }
+
+    // bind generate (if not found, create a floating generate button)
+    function attach(){
+      if(!genBtn){
+        genBtn = document.createElement('button');
+        genBtn.type='button';
+        genBtn.id='gen';
+        genBtn.textContent='Generate Tags';
+        genBtn.style.marginTop='12px';
+        const target = document.querySelector('.controls') || document.querySelector('.card') || document.body;
+        target.appendChild(genBtn);
+      }
+      genBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        const caption = captionEl ? (captionEl.value || captionEl.textContent || '') : '';
+        const niche = nicheEl ? (nicheEl.value || nicheEl.options?.[nicheEl.selectedIndex]?.text || 'general') : 'general';
+        const maxCount = countEl ? parseInt(countEl.value||10) : 10;
+        if(!caption.trim()){
+          // highlight briefly
+          if(captionEl){ captionEl.focus(); captionEl.classList.add('blink'); setTimeout(()=>captionEl.classList.remove('blink'),700); }
+          return;
+        }
+        const tags = generateFromText(caption, niche, maxCount);
+        renderTags(tags);
+      });
+    }
+
+    attach();
+  });
+})();
+</script>
+
 </script>
 </body>
+
 </html>
