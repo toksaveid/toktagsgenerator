@@ -1,36 +1,34 @@
 <!doctype html>
+
 <html lang="id">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>TokTags — TikTok Hashtag Generator (Demo)</title>
-<meta name="description" content="Generate hashtag TikTok cepat berdasarkan caption / keyword. No API, client-side saja."/>
-<style>
-  :root{--bg:#071018;--card:#0f1620;--muted:#9aa6b2;--accent:#7c4dff;--accent2:#4f46e5}
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#071018,#07131a);color:#e6eef6;padding:18px;min-height:100vh}
-  .wrap{max-width:980px;margin:0 auto}
-  header{display:flex;gap:12px;align-items:center;margin-bottom:14px}
-  .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:18px}
-  h1{margin:0;font-size:20px}
-  p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:12px;margin-top:12px;border:1px solid rgba(255,255,255,0.03)}
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-  input[type="text"], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-  textarea{min-height:80px;resize:vertical}
-  .row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
-  .col{flex:1;min-width:160px}
-  .controls{display:flex;gap:8px;margin-top:12px;align-items:center}
-  .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));border:0;padding:10px 14px;border-radius:10px;color:white;font-weight:700;cursor:pointer}
-  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-  .small{font-size:13px;color:var(--muted)}
-  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-  .tag{background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
-  .tag:hover{transform:translateY(-2px)}
-  .resultBox{margin-top:12px}
-  .hint{color:var(--muted);font-size:13px;margin-top:8px}
-  footer{margin-top:18px;color:var(--muted);font-size:13px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TokTags — Hashtag Generator (Demo)</title>
+  <style>
+    :root{--bg:#071018;--card:#0f1620;--muted:#9aa6b2;--accent:#7b4cff;--text:#e6eef6}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Roboto,Arial;background:var(--bg);color:var(--text);padding:22px;min-height:100vh}
+    .wrap{max-width:820px;margin:0 auto}
+    header{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+    .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#8a2fff);display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{margin:0;font-size:28px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5)}
+    label.small{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+    textarea{width:100%;min-height:100px;padding:12px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text);resize:vertical}
+    .row{display:flex;gap:12px;margin-top:12px}
+    select,input{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:12px;border-radius:10px;color:var(--text);flex:1}
+    .controls{display:flex;gap:8px;margin-top:14px}
+    .btn{padding:12px 16px;border-radius:12px;border:0;cursor:pointer}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),#a36bff);color:white}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}
+    .tags{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+    .tag{background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px;cursor:pointer;user-select:none}
+    .hint{color:var(--muted);margin-top:10px}
+    .small-muted{font-size:13px;color:var(--muted)}
+    .tools{display:flex;gap:8px;margin-top:10px}
+    @media(max-width:520px){h1{font-size:22px}.logo{width:48px;height:48px}}
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -38,342 +36,132 @@
       <div class="logo">TT</div>
       <div>
         <h1>TokTags</h1>
-        <p class="lead">Generate hashtag TikTok cepat dari caption / keyword. (Demo — client-side)</p>
+        <div class="small-muted">Generate hashtag TikTok cepat dari caption / keyword — client-side demo</div>
       </div>
-    </header>
+    </header><div class="card">
+  <label class="small">Masukkan caption / keyword</label>
+  <textarea id="caption" placeholder="Tulis caption atau keyword... contoh: lirik lagu sedih"></textarea>
 
-    <div class="card">
-      <label for="caption">Masukkan caption / keyword</label>
-      <textarea id="caption" placeholder="Contoh: tips makeup natural, tutorial editing cepat, dance challenge"></textarea>
-
-      <div class="row">
-        <div class="col">
-          <label for="niche">Niche</label>
-          <select id="niche">
-            <option value="general">General</option>
-            <option value="gaming">Gaming</option>
-            <option value="beauty">Beauty</option>
-            <option value="music">Music</option>
-            <option value="food">Food</option>
-            <option value="tech">Tech</option>
-          </select>
-        </div>
-        <div style="width:140px">
-          <label for="count">Jumlah Tag</label>
-          <select id="count"><option>5</option><option selected>10</option><option>15</option><option>20</option></select>
-        </div>
-      </div>
-
-      <div class="controls">
-        <button id="gen" class="btn">Generate Tags</button>
-        <button id="copyAll" class="btn ghost">Copy All</button>
-        <button id="saveTpl" class="btn ghost">Save Template</button>
-        <div style="margin-left:auto" class="small">Templates tersimpan di browser</div>
-      </div>
-
-      <div class="resultBox">
-        <label>Hashtags</label>
-        <div id="tags" class="tags small">Tekan Generate untuk membuat hashtag.</div>
-        <div id="quick" class="hint"></div>
-      </div>
-
-      <div style="margin-top:12px">
-        <label>Saved Templates</label>
-        <div id="tplList" class="tags small"></div>
-      </div>
-
-    </div>
-
-    <footer>
-      <div class="small">Disclaimer: Hasil tag bersifat saran. Untuk performa maksimal, tambahkan eksperimen & pantau analytics TikTok.</div>
-    </footer>
+  <div class="row">
+    <select id="niche">
+      <option value="general">General</option>
+      <option value="dance">Dance</option>
+      <option value="music">Music</option>
+      <option value="food">Food</option>
+      <option value="beauty">Beauty</option>
+      <option value="gaming">Gaming</option>
+    </select>
+    <select id="count">
+      <option value="5">5</option>
+      <option value="7">7</option>
+      <option value="10" selected>10</option>
+      <option value="15">15</option>
+      <option value="20">20</option>
+    </select>
   </div>
 
-<script>
-(() => {
-  // ===== SIMPLE DATA: trending/popular tags weight (expandable) =====
-  // This is a demo list. You can add more tags per niche.
-  const POPULAR_TAGS = {
-    general: {
-      "fyp": 100, "foryou": 90, "viral": 80, "trending": 70, "tiktok": 85,
-      "explore":50, "funny":60, "lifehacks":55, "tutorial":65, "tips":60
-    },
-    gaming: {
-      "gaming":90,"gamer":80,"mobilegaming":70,"fps":60,"mobilelegends":75,"freefire":75,"pubg":65,"gameplay":68,"gacha":50
-    },
-    beauty:{
-      "makeuptutorial":90,"beautyhacks":80,"skincare":85,"glowup":70,"review":60,"makeup":88,"tutorialmakeup":65
-    },
-    music:{
-      "music":90,"cover":80,"song":75,"guitar":60,"singing":70,"newmusic":65,"viralmusic":80
-    },
-    food:{ "food":90,"recipe":85,"foodporn":80,"homemade":70,"recipeeasy":60,"cooking":75 },
-    tech:{ "tech":90,"gadgets":80,"review":70,"unboxing":75,"howto":65 }
-  };
+  <div class="controls">
+    <button id="genBtn" class="btn primary">Generate Tags</button>
+    <button id="copyAll" class="btn ghost">Copy All</button>
+    <button id="saveTpl" class="btn ghost">Save Template</button>
+  </div>
 
-  // small synonym map to expand keywords to tags
-  const SYNONYMS = {
-    "makeup":["makeup","makeuptutorial","tutorialmakeup","beauty"],
-    "tutorial":["tutorial","tips","howto"],
-    "dance":["dance","dancetutorial","dancechallenge","choreography"],
-    "game":["gaming","gameplay","gamer"],
-    "song":["music","coversong","cover"],
-    "food":["food","recipe","foodporn"],
-    "review":["review","unboxing"]
-  };
+  <div id="tagsWrap" class="tags"></div>
+  <div class="hint">Klik tag untuk copy. Templates tersimpan di browser (localStorage).</div>
 
-  // stopwords simple
-  const STOP = new Set("yang dan di ke untuk dengan juga dari pada itu ini adalah saya kamu aku di".split(" "));
+  <div style="margin-top:12px;border-top:1px dashed rgba(255,255,255,0.03);padding-top:12px">
+    <div class="small-muted">Saved Templates</div>
+    <div id="tplList" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"></div>
+  </div>
+</div>
 
-  // helpers
-  const captionEl = document.getElementById('caption');
-  const nicheEl = document.getElementById('niche');
-  const countEl = document.getElementById('count');
-  const genBtn = document.getElementById('gen');
-  const tagsWrap = document.getElementById('tags');
-  const copyAll = document.getElementById('copyAll');
-  const tplList = document.getElementById('tplList');
-  const saveTpl = document.getElementById('saveTpl');
-  const quick = document.getElementById('quick');
+<footer style="margin-top:18px;text-align:center;color:var(--muted)">⚠️ Disclaimer: Demo client-side. Gunakan etis.</footer>
 
-  function tokenize(s){
-    return s.toLowerCase().replace(/[^\w\s]/g,' ').split(/\s+/).filter(Boolean).filter(w => !STOP.has(w));
-  }
+  </div>  <script>
+  (function(){
+    // helper
+    function $(id){return document.getElementById(id)}
+    const captionEl = $('caption');
+    const nicheEl = $('niche');
+    const countEl = $('count');
+    const genBtn = $('genBtn');
+    const tagsWrap = $('tagsWrap');
+    const copyAll = $('copyAll');
+    const saveTpl = $('saveTpl');
+    const tplList = $('tplList');
 
-  function expandKeywords(keys){
-    const out = new Set();
-    keys.forEach(k=>{
-      out.add(k);
-      if(SYNONYMS[k]) SYNONYMS[k].forEach(x=>out.add(x));
-    });
-    return Array.from(out);
-  }
+    function slugify(s){return (s||'').toString().toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'')}
 
-  function scoreTag(tag, keywords, popularMap){
-    // score = popularityWeight * (1 + matchCount*0.6)
-    let pop = popularMap[tag] || 10; // default low
-    // match points if tag contains any keyword or synonym
-    let match = 0;
-    for(const kw of keywords){
-      if(tag.includes(kw)) match++;
-    }
-    return pop * (1 + match*0.6);
-  }
+    const nicheMap = {
+      general:[],
+      dance:['dance','choreo','dancechallenge'],
+      music:['music','cover','song'],
+      food:['food','foodie','recipe'],
+      beauty:['beauty','makeup','skincare'],
+      gaming:['gaming','gamer','gameplay']
+    };
 
-  function generateTags(caption, niche, limit=10){
-    const tokens = tokenize(caption);
-    const keywords = expandKeywords(tokens);
-    // build candidate pool: niche popular tags + general popular
-    const pool = new Set();
-    const popular = POPULAR_TAGS[niche] || {};
-    Object.keys(popular).forEach(t=>pool.add(t));
-    Object.keys(POPULAR_TAGS.general).forEach(t=>pool.add(t));
-    // also include keyword-as-tag attempts
-    keywords.forEach(k => pool.add(k.replace(/\s+/g,''))); // compact
-    // scoring
-    const arr = Array.from(pool).map(tag => {
-      const sc = scoreTag(tag, keywords, Object.assign({}, POPULAR_TAGS.general, POPULAR_TAGS[niche] || {}));
-      return {tag, score: sc};
-    });
-    // sort desc
-    arr.sort((a,b)=>b.score - a.score);
-    // make hashtags, avoid duplicates, prefer tags containing keywords
-    const out = [];
-    for(const it of arr){
-      const h = '#'+it.tag;
-      if(out.includes(h)) continue;
-      out.push(h);
-      if(out.length>=limit) break;
-    }
-    return out;
-  }
-
-  // render tags
-  function renderTags(list){
-    tagsWrap.innerHTML = '';
-    if(!list || !list.length){ tagsWrap.textContent = 'Tidak ada tag. Coba isi caption.'; return; }
-    list.forEach(t => {
-      const el = document.createElement('div');
-      el.className='tag';
-      el.textContent = t;
-      el.title = 'Klik untuk copy';
-      el.onclick = async ()=> {
-        try{ await navigator.clipboard.writeText(t); el.textContent = 'Copied '; setTimeout(()=>el.textContent=t,800); }
-        catch(e){ alert('Gagal copy. Pilih & copy manual.'); }
-      };
-      tagsWrap.appendChild(el);
-    });
-  }
-
-  genBtn.addEventListener('click', ()=>{
-    const cap = captionEl.value.trim();
-    const niche = nicheEl.value;
-    const cnt = parseInt(countEl.value)||10;
-    if(!cap){ alert('Isi caption atau keyword dulu'); captionEl.focus(); return; }
-    const res = generateTags(cap, niche, cnt);
-    renderTags(res);
-    quick.textContent = 'Tip: Klik tag untuk copy satu-satu. Tombol "Copy All" untuk copy semua tag.';
-  });
-
-  copyAll.addEventListener('click', async ()=>{
-    const items = Array.from(tagsWrap.querySelectorAll('.tag')).map(el=>el.textContent).join(' ');
-    if(!items){ alert('Belum ada tag. Tekan Generate dulu.'); return; }
-    try{ await navigator.clipboard.writeText(items); copyAll.textContent='Copied '; setTimeout(()=>copyAll.textContent='Copy All',900); }
-    catch(e){ alert('Gagal copy. Salin manual.'); }
-  });
-
-  // templates
-  const TKEY = 'toktags_templates_v1';
-  function loadTpl(){ try{return JSON.parse(localStorage.getItem(TKEY)||'[]')}catch(e){return []} }
-  function saveTpl(arr){ localStorage.setItem(TKEY, JSON.stringify(arr)); renderTpls(); }
-  function renderTpls(){
-    tplList.innerHTML = '';
-    const arr = loadTpl();
-    if(!arr.length){ tplList.textContent='Belum ada template'; return; }
-    arr.forEach((t,i)=>{
-      const chip = document.createElement('div'); chip.className='tag'; chip.textContent=t.name;
-      chip.onclick = ()=> {
-        captionEl.value = t.caption;
-        nicheEl.value = t.niche;
-      };
-      const del = document.createElement('span'); del.textContent=' '; del.style.marginLeft='8px'; del.style.cursor='pointer';
-      del.onclick = (e)=>{ e.stopPropagation(); arr.splice(i,1); saveTpl(arr); };
-      chip.appendChild(del);
-      tplList.appendChild(chip);
-    });
-  }
-  renderTpls();
-  saveTpl.addEventListener('click', ()=>{
-    const name = prompt('Nama template singkat:');
-    if(!name) return;
-    const arr = loadTpl();
-    arr.push({ name, caption: captionEl.value, niche: nicheEl.value });
-    saveTpl(arr);
-  });
-
-  // quick sample: fill with example
-  captionEl.placeholder = 'Contoh: tutorial makeup natural, quick glow, 1 menit';
-})();
-<!-- Tag generator fallback: paste this before </body> -->
-<script>
-(function(){
-  // safety: tunggu DOM siap
-  function ready(fn){ if(document.readyState!='loading') fn(); else document.addEventListener('DOMContentLoaded',fn); }
-
-  ready(function(){
-    // cari elemen caption / niche / jumlah / generate / tags container
-    const captionEl = document.getElementById('caption') || document.querySelector('textarea') || document.querySelector('input[type="text"]');
-    const nicheEl = document.getElementById('niche') || document.querySelector('select');
-    const countEl = document.getElementById('count') || document.querySelector('[name="count"]') || null;
-    let genBtn = document.getElementById('gen') || Array.from(document.querySelectorAll('button')).find(b => /generate|generate tags|generate tag|gas|buat/i.test(b.innerText));
-    const tagsWrapExisting = document.getElementById('tags') || document.querySelector('.tags-wrap');
-
-    // jika belum ada area render, buat sendiri dan masukkan di bawah tombol (atau di akhir form)
-    function ensureTagsWrap(){
-      let wrap = tagsWrapExisting || document.getElementById('tags');
-      if(!wrap){
-        wrap = document.createElement('div');
-        wrap.id = 'tags';
-        wrap.style.marginTop = '12px';
-        const container = document.querySelector('.card') || document.querySelector('form') || document.body;
-        container.appendChild(wrap);
-      }
-      return wrap;
-    }
-
-    const wrap = ensureTagsWrap();
-
-    // simple generator
-    function generateFromText(text, niche, maxCount){
+    function makeTags(text,niche,n){
       if(!text) return [];
-      // normalize
-      text = text.toLowerCase().replace(/[^\w\s-]/g,' ').replace(/\s+/g,' ').trim();
-      const words = text.split(' ').filter(Boolean);
-      // include some basic synonyms per niche
-      const nicheHints = {
-        beauty: ['makeup','beauty','skincare','tutorial'],
-        music: ['music','song','cover','lyrics'],
-        food: ['food','recipe','foodie','kuliner'],
-        gaming: ['gaming','gamer','mobilelegends','mlbb','gameplay'],
-        general: []
-      };
-      const hints = nicheHints[(niche||'general').toLowerCase()] || [];
-      // pick unique words, prefer first words + hints
-      const uniq = Array.from(new Set([...words, ...hints])).slice(0, maxCount||10);
-      // format as hashtags (no spaces)
-      return uniq.map(w => '#'+w.replace(/[^a-z0-9_]/g,'')).filter(Boolean);
+      const words = text.split(/\s+/).filter(Boolean).slice(0,6);
+      const base = slugify(words.join(' ')) || 'tiktok';
+      const set = new Set();
+      set.add('#'+base);
+      words.forEach(w=> set.add('#'+slugify(w)));
+      (nicheMap[niche]||[]).forEach(x=> set.add('#'+x));
+      ['fyp','viral','trend','trending','foru'].forEach(x=> set.add('#'+x));
+      // combos
+      set.add('#'+base+'viral');
+      set.add('#'+base+'trend');
+      return Array.from(set).slice(0,n);
     }
 
     function renderTags(list){
-      wrap.innerHTML = ''; // clear
-      if(list.length===0){
-        const p = document.createElement('div'); p.textContent = 'Tekan Generate untuk membuat hashtag.'; p.style.opacity=.8; wrap.appendChild(p); return;
-      }
-      const box = document.createElement('div');
-      box.style.display = 'flex';
-      box.style.flexWrap = 'wrap';
-      box.style.gap = '8px';
-      list.forEach(t=>{
-        const el = document.createElement('button');
-        el.type='button';
-        el.className='tagchip';
-        el.textContent = t;
-        el.style.padding = '8px 10px';
-        el.style.borderRadius = '20px';
-        el.style.border = 'none';
-        el.style.background = 'rgba(255,255,255,0.04)';
-        el.style.color = 'inherit';
-        el.style.cursor = 'pointer';
-        el.onclick = ()=>{ navigator.clipboard.writeText(t).then(()=>{ el.textContent = 'copied ✓'; setTimeout(()=>el.textContent=t,900); }); };
-        box.appendChild(el);
+      tagsWrap.innerHTML='';
+      if(!list || !list.length){ tagsWrap.textContent = 'Tekan Generate untuk membuat hashtag.'; return; }
+      list.forEach(t => {
+        const el = document.createElement('span');
+        el.className = 'tag'; el.textContent = t;
+        el.onclick = ()=>{
+          navigator.clipboard?.writeText(t).then(()=>{
+            el.textContent = 'copied!'; setTimeout(()=> el.textContent = t,700);
+          }).catch(()=> alert('Copy failed'));
+        };
+        tagsWrap.appendChild(el);
       });
-      // copy all btn
-      const copyAll = document.createElement('button');
-      copyAll.type='button';
-      copyAll.textContent = 'Copy All';
-      copyAll.style.padding='8px 12px';
-      copyAll.style.borderRadius='8px';
-      copyAll.style.marginLeft='6px';
-      copyAll.onclick = ()=>{
-        const text = list.join(' ');
-        navigator.clipboard.writeText(text).then(()=>{ copyAll.textContent='Copied ✓'; setTimeout(()=>copyAll.textContent='Copy All',900); });
+    }
+
+    // templates localStorage
+    function loadTpl(){try{return JSON.parse(localStorage.getItem('tt_tpls')||'[]')}catch(e){return []}}
+    function saveTpls(arr){localStorage.setItem('tt_tpls',JSON.stringify(arr))}
+    function renderTpls(){tplList.innerHTML=''; const arr=loadTpl(); if(!arr.length){tplList.textContent='(kosong)';return} arr.forEach((t,i)=>{
+      const chip=document.createElement('button'); chip.className='btn ghost'; chip.textContent=t.name||('tpl'+(i+1)); chip.onclick=()=>{
+        captionEl.value = t.caption; nicheEl.value = t.niche||'general'; countEl.value = t.count||10; renderTags(makeTags(t.caption,t.niche,t.count||10));
       };
-      wrap.appendChild(box);
-      wrap.appendChild(copyAll);
-    }
+      const del=document.createElement('span'); del.style.marginLeft='8px'; del.style.cursor='pointer'; del.textContent='✕'; del.onclick=(e)=>{e.stopPropagation(); arr.splice(i,1); saveTpls(arr); renderTpls();};
+      const wrap=document.createElement('span'); wrap.style.display='inline-flex'; wrap.style.alignItems='center'; wrap.appendChild(chip); wrap.appendChild(del);
+      tplList.appendChild(wrap);
+    })}
 
-    // bind generate (if not found, create a floating generate button)
-    function attach(){
-      if(!genBtn){
-        genBtn = document.createElement('button');
-        genBtn.type='button';
-        genBtn.id='gen';
-        genBtn.textContent='Generate Tags';
-        genBtn.style.marginTop='12px';
-        const target = document.querySelector('.controls') || document.querySelector('.card') || document.body;
-        target.appendChild(genBtn);
-      }
-      genBtn.addEventListener('click', function(e){
-        e.preventDefault();
-        const caption = captionEl ? (captionEl.value || captionEl.textContent || '') : '';
-        const niche = nicheEl ? (nicheEl.value || nicheEl.options?.[nicheEl.selectedIndex]?.text || 'general') : 'general';
-        const maxCount = countEl ? parseInt(countEl.value||10) : 10;
-        if(!caption.trim()){
-          // highlight briefly
-          if(captionEl){ captionEl.focus(); captionEl.classList.add('blink'); setTimeout(()=>captionEl.classList.remove('blink'),700); }
-          return;
-        }
-        const tags = generateFromText(caption, niche, maxCount);
-        renderTags(tags);
-      });
-    }
+    // events
+    genBtn.addEventListener('click', (e)=>{
+      e.preventDefault(); const text = captionEl.value.trim(); const n = parseInt(countEl.value)||10; const nic = nicheEl.value||'general';
+      const tags = makeTags(text,nic,n); renderTags(tags);
+    });
 
-    attach();
-  });
-})();
-</script>
+    copyAll.addEventListener('click', ()=>{
+      const nodes = tagsWrap.querySelectorAll('.tag'); if(!nodes.length){ alert('Belum ada tag'); return }
+      const arr = Array.from(nodes).map(n=>n.textContent).join(' ');
+      navigator.clipboard?.writeText(arr).then(()=> alert('Tags copied!')).catch(()=> alert('Copy gagal'));
+    });
 
-</script>
-</body>
+    saveTpl.addEventListener('click', ()=>{
+      const name = prompt('Nama template (opsional)') || 'template'; const caption = captionEl.value.trim(); if(!caption){ alert('Isi caption dulu'); return }
+      const niche = nicheEl.value; const count = parseInt(countEl.value)||10; const arr = loadTpl(); arr.push({name,caption,niche,count}); saveTpls(arr); renderTpls();
+    });
 
+    // init
+    renderTpls(); renderTags([]);
+  })();
+  </script></body>
 </html>
