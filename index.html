@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TokTags — TikTok Hashtag Generator (Demo)</title>
+<meta name="description" content="Generate hashtag TikTok cepat berdasarkan caption / keyword. No API, client-side saja."/>
+<style>
+  :root{--bg:#071018;--card:#0f1620;--muted:#9aa6b2;--accent:#7c4dff;--accent2:#4f46e5}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#071018,#07131a);color:#e6eef6;padding:18px;min-height:100vh}
+  .wrap{max-width:980px;margin:0 auto}
+  header{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+  .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:18px}
+  h1{margin:0;font-size:20px}
+  p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:12px;margin-top:12px;border:1px solid rgba(255,255,255,0.03)}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  input[type="text"], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+  textarea{min-height:80px;resize:vertical}
+  .row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .col{flex:1;min-width:160px}
+  .controls{display:flex;gap:8px;margin-top:12px;align-items:center}
+  .btn{background:linear-gradient(90deg,var(--accent),var(--accent2));border:0;padding:10px 14px;border-radius:10px;color:white;font-weight:700;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  .small{font-size:13px;color:var(--muted)}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .tag{background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+  .tag:hover{transform:translateY(-2px)}
+  .resultBox{margin-top:12px}
+  .hint{color:var(--muted);font-size:13px;margin-top:8px}
+  footer{margin-top:18px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">TT</div>
+      <div>
+        <h1>TokTags</h1>
+        <p class="lead">Generate hashtag TikTok cepat dari caption / keyword. (Demo — client-side)</p>
+      </div>
+    </header>
+
+    <div class="card">
+      <label for="caption">Masukkan caption / keyword</label>
+      <textarea id="caption" placeholder="Contoh: tips makeup natural, tutorial editing cepat, dance challenge"></textarea>
+
+      <div class="row">
+        <div class="col">
+          <label for="niche">Niche</label>
+          <select id="niche">
+            <option value="general">General</option>
+            <option value="gaming">Gaming</option>
+            <option value="beauty">Beauty</option>
+            <option value="music">Music</option>
+            <option value="food">Food</option>
+            <option value="tech">Tech</option>
+          </select>
+        </div>
+        <div style="width:140px">
+          <label for="count">Jumlah Tag</label>
+          <select id="count"><option>5</option><option selected>10</option><option>15</option><option>20</option></select>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="gen" class="btn">Generate Tags</button>
+        <button id="copyAll" class="btn ghost">Copy All</button>
+        <button id="saveTpl" class="btn ghost">Save Template</button>
+        <div style="margin-left:auto" class="small">Templates tersimpan di browser</div>
+      </div>
+
+      <div class="resultBox">
+        <label>Hashtags</label>
+        <div id="tags" class="tags small">Tekan Generate untuk membuat hashtag.</div>
+        <div id="quick" class="hint"></div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Saved Templates</label>
+        <div id="tplList" class="tags small"></div>
+      </div>
+
+    </div>
+
+    <footer>
+      <div class="small">Disclaimer: Hasil tag bersifat saran. Untuk performa maksimal, tambahkan eksperimen & pantau analytics TikTok.</div>
+    </footer>
+  </div>
+
+<script>
+(() => {
+  // ===== SIMPLE DATA: trending/popular tags weight (expandable) =====
+  // This is a demo list. You can add more tags per niche.
+  const POPULAR_TAGS = {
+    general: {
+      "fyp": 100, "foryou": 90, "viral": 80, "trending": 70, "tiktok": 85,
+      "explore":50, "funny":60, "lifehacks":55, "tutorial":65, "tips":60
+    },
+    gaming: {
+      "gaming":90,"gamer":80,"mobilegaming":70,"fps":60,"mobilelegends":75,"freefire":75,"pubg":65,"gameplay":68,"gacha":50
+    },
+    beauty:{
+      "makeuptutorial":90,"beautyhacks":80,"skincare":85,"glowup":70,"review":60,"makeup":88,"tutorialmakeup":65
+    },
+    music:{
+      "music":90,"cover":80,"song":75,"guitar":60,"singing":70,"newmusic":65,"viralmusic":80
+    },
+    food:{ "food":90,"recipe":85,"foodporn":80,"homemade":70,"recipeeasy":60,"cooking":75 },
+    tech:{ "tech":90,"gadgets":80,"review":70,"unboxing":75,"howto":65 }
+  };
+
+  // small synonym map to expand keywords to tags
+  const SYNONYMS = {
+    "makeup":["makeup","makeuptutorial","tutorialmakeup","beauty"],
+    "tutorial":["tutorial","tips","howto"],
+    "dance":["dance","dancetutorial","dancechallenge","choreography"],
+    "game":["gaming","gameplay","gamer"],
+    "song":["music","coversong","cover"],
+    "food":["food","recipe","foodporn"],
+    "review":["review","unboxing"]
+  };
+
+  // stopwords simple
+  const STOP = new Set("yang dan di ke untuk dengan juga dari pada itu ini adalah saya kamu aku di".split(" "));
+
+  // helpers
+  const captionEl = document.getElementById('caption');
+  const nicheEl = document.getElementById('niche');
+  const countEl = document.getElementById('count');
+  const genBtn = document.getElementById('gen');
+  const tagsWrap = document.getElementById('tags');
+  const copyAll = document.getElementById('copyAll');
+  const tplList = document.getElementById('tplList');
+  const saveTpl = document.getElementById('saveTpl');
+  const quick = document.getElementById('quick');
+
+  function tokenize(s){
+    return s.toLowerCase().replace(/[^\w\s]/g,' ').split(/\s+/).filter(Boolean).filter(w => !STOP.has(w));
+  }
+
+  function expandKeywords(keys){
+    const out = new Set();
+    keys.forEach(k=>{
+      out.add(k);
+      if(SYNONYMS[k]) SYNONYMS[k].forEach(x=>out.add(x));
+    });
+    return Array.from(out);
+  }
+
+  function scoreTag(tag, keywords, popularMap){
+    // score = popularityWeight * (1 + matchCount*0.6)
+    let pop = popularMap[tag] || 10; // default low
+    // match points if tag contains any keyword or synonym
+    let match = 0;
+    for(const kw of keywords){
+      if(tag.includes(kw)) match++;
+    }
+    return pop * (1 + match*0.6);
+  }
+
+  function generateTags(caption, niche, limit=10){
+    const tokens = tokenize(caption);
+    const keywords = expandKeywords(tokens);
+    // build candidate pool: niche popular tags + general popular
+    const pool = new Set();
+    const popular = POPULAR_TAGS[niche] || {};
+    Object.keys(popular).forEach(t=>pool.add(t));
+    Object.keys(POPULAR_TAGS.general).forEach(t=>pool.add(t));
+    // also include keyword-as-tag attempts
+    keywords.forEach(k => pool.add(k.replace(/\s+/g,''))); // compact
+    // scoring
+    const arr = Array.from(pool).map(tag => {
+      const sc = scoreTag(tag, keywords, Object.assign({}, POPULAR_TAGS.general, POPULAR_TAGS[niche] || {}));
+      return {tag, score: sc};
+    });
+    // sort desc
+    arr.sort((a,b)=>b.score - a.score);
+    // make hashtags, avoid duplicates, prefer tags containing keywords
+    const out = [];
+    for(const it of arr){
+      const h = '#'+it.tag;
+      if(out.includes(h)) continue;
+      out.push(h);
+      if(out.length>=limit) break;
+    }
+    return out;
+  }
+
+  // render tags
+  function renderTags(list){
+    tagsWrap.innerHTML = '';
+    if(!list || !list.length){ tagsWrap.textContent = 'Tidak ada tag. Coba isi caption.'; return; }
+    list.forEach(t => {
+      const el = document.createElement('div');
+      el.className='tag';
+      el.textContent = t;
+      el.title = 'Klik untuk copy';
+      el.onclick = async ()=> {
+        try{ await navigator.clipboard.writeText(t); el.textContent = 'Copied '; setTimeout(()=>el.textContent=t,800); }
+        catch(e){ alert('Gagal copy. Pilih & copy manual.'); }
+      };
+      tagsWrap.appendChild(el);
+    });
+  }
+
+  genBtn.addEventListener('click', ()=>{
+    const cap = captionEl.value.trim();
+    const niche = nicheEl.value;
+    const cnt = parseInt(countEl.value)||10;
+    if(!cap){ alert('Isi caption atau keyword dulu'); captionEl.focus(); return; }
+    const res = generateTags(cap, niche, cnt);
+    renderTags(res);
+    quick.textContent = 'Tip: Klik tag untuk copy satu-satu. Tombol "Copy All" untuk copy semua tag.';
+  });
+
+  copyAll.addEventListener('click', async ()=>{
+    const items = Array.from(tagsWrap.querySelectorAll('.tag')).map(el=>el.textContent).join(' ');
+    if(!items){ alert('Belum ada tag. Tekan Generate dulu.'); return; }
+    try{ await navigator.clipboard.writeText(items); copyAll.textContent='Copied '; setTimeout(()=>copyAll.textContent='Copy All',900); }
+    catch(e){ alert('Gagal copy. Salin manual.'); }
+  });
+
+  // templates
+  const TKEY = 'toktags_templates_v1';
+  function loadTpl(){ try{return JSON.parse(localStorage.getItem(TKEY)||'[]')}catch(e){return []} }
+  function saveTpl(arr){ localStorage.setItem(TKEY, JSON.stringify(arr)); renderTpls(); }
+  function renderTpls(){
+    tplList.innerHTML = '';
+    const arr = loadTpl();
+    if(!arr.length){ tplList.textContent='Belum ada template'; return; }
+    arr.forEach((t,i)=>{
+      const chip = document.createElement('div'); chip.className='tag'; chip.textContent=t.name;
+      chip.onclick = ()=> {
+        captionEl.value = t.caption;
+        nicheEl.value = t.niche;
+      };
+      const del = document.createElement('span'); del.textContent=' '; del.style.marginLeft='8px'; del.style.cursor='pointer';
+      del.onclick = (e)=>{ e.stopPropagation(); arr.splice(i,1); saveTpl(arr); };
+      chip.appendChild(del);
+      tplList.appendChild(chip);
+    });
+  }
+  renderTpls();
+  saveTpl.addEventListener('click', ()=>{
+    const name = prompt('Nama template singkat:');
+    if(!name) return;
+    const arr = loadTpl();
+    arr.push({ name, caption: captionEl.value, niche: nicheEl.value });
+    saveTpl(arr);
+  });
+
+  // quick sample: fill with example
+  captionEl.placeholder = 'Contoh: tutorial makeup natural, quick glow, 1 menit';
+})();
+</script>
+</body>
+</html>
